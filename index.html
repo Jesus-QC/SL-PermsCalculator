@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitwise Permissions Calculator</title>
+    <title>Bitwise Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,21 +16,23 @@
         h1 {
             text-align: center;
             color: #e0e0e0;
+            margin-bottom: 30px;
         }
         .calculator {
             background-color: #1e1e1e;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
         .result {
             background-color: #2d2d2d;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
         .result-value {
             font-size: 24px;
@@ -46,57 +48,91 @@
             color: #8bc34a;
             font-size: 24px;
             font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 8px 15px;
+            border-radius: 6px;
             width: 200px;
             font-family: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         .result-input:focus {
             outline: none;
             border-color: #3d5afe;
+            box-shadow: 0 0 0 2px rgba(61, 90, 254, 0.2);
         }
         .copy-btn {
             background-color: #3d5afe;
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
+            padding: 10px 18px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .copy-btn:hover {
             background-color: #536dfe;
         }
+        .copy-btn:active {
+            transform: translateY(1px);
+        }
         .permissions {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 10px;
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin-top: 20px;
+        }
+        .permissions::-webkit-scrollbar {
+            width: 8px;
+        }
+        .permissions::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 4px;
+        }
+        .permissions::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+        .permissions::-webkit-scrollbar-thumb:hover {
+            background: #666;
         }
         .permission-item {
             display: flex;
             align-items: center;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            padding: 10px 15px;
+            border-radius: 6px;
+            transition: all 0.2s;
+            background-color: #2a2a2a;
         }
         .permission-item:hover {
-            background-color: #2d2d2d;
+            background-color: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         .permission-item.active {
-            background-color: rgba(61, 90, 254, 0.2);
+            background-color: rgba(61, 90, 254, 0.15);
+            border-left: 3px solid #3d5afe;
         }
         .permission-item label {
             margin-left: 10px;
             cursor: pointer;
             flex-grow: 1;
+            font-size: 14px;
         }
         .permission-value {
             color: #9e9e9e;
             font-size: 12px;
             margin-left: 10px;
+            background-color: #222;
+            padding: 3px 8px;
+            border-radius: 4px;
         }
         .controls {
-            margin-top: 20px;
+            margin-top: 25px;
             display: flex;
             justify-content: space-between;
         }
@@ -104,16 +140,24 @@
             background-color: #43a047;
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            padding: 12px 20px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .controls button.clear {
             background-color: #e53935;
         }
         .controls button:hover {
             opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .controls button:active {
+            transform: translateY(1px);
         }
         .binary-view {
             font-family: monospace;
@@ -121,17 +165,23 @@
             font-size: 12px;
             word-break: break-all;
             color: #64b5f6;
+            background-color: #222;
+            padding: 5px 10px;
+            border-radius: 4px;
+            max-width: 100%;
+            overflow-x: auto;
         }
         input[type="checkbox"] {
             appearance: none;
             -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             background-color: #2d2d2d;
             border: 2px solid #555;
-            border-radius: 3px;
+            border-radius: 4px;
             cursor: pointer;
             position: relative;
+            transition: all 0.2s;
         }
         input[type="checkbox"]:checked {
             background-color: #3d5afe;
@@ -146,11 +196,61 @@
             transform: translate(-50%, -50%);
             font-size: 12px;
         }
+        input[type="checkbox"]:hover {
+            border-color: #3d5afe;
+        }
+        .tabs {
+            position: relative;
+            margin-bottom: 30px;
+            display: flex;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px 0;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            transition: color 0.3s;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            color: #e0e0e0;
+            font-size: 15px;
+        }
+        .tab.active {
+            color: white;
+        }
+        .tab-indicator {
+            position: absolute;
+            height: calc(100% - 10px);
+            top: 5px;
+            left: 5px;
+            width: calc(50% - 10px);
+            background-color: #3d5afe;
+            border-radius: 6px;
+            transition: transform 0.3s cubic-bezier(0.35, 0.1, 0.25, 1);
+            z-index: 1;
+        }
+        .tab:nth-child(2).active ~ .tab-indicator {
+            transform: translateX(100%);
+        }
     </style>
 </head>
 <body>
-    <h1>Bitwise Permissions Calculator</h1>
+    <h1>Bitwise Calculator</h1>
     <div class="calculator">
+        <div class="tabs">
+            <button id="permissions-tab" class="tab active">Permissions</button>
+            <button id="groups-tab" class="tab">Server Groups</button>
+            <div class="tab-indicator"></div>
+        </div>
+        
         <div class="result">
             <div>
                 <div class="result-value">
@@ -171,38 +271,47 @@
     </div>
 
     <script>
-        const permissions = {
-            KickingAndShortTermBanning: 1,
-            BanningUpToDay: 2,
-            LongTermBanning: 4,
-            ForceclassSelf: 8,
-            ForceclassToSpectator: 16,
-            ForceclassWithoutRestrictions: 32,
-            GivingItems: 64,
-            WarheadEvents: 128,
-            RespawnEvents: 256,
-            RoundEvents: 512,
-            SetGroup: 1024,
-            GameplayData: 2048,
-            Overwatch: 4096,
-            FacilityManagement: 8192,
-            PlayersManagement: 16384,
-            PermissionsManagement: 32768,
-            ServerConsoleCommands: 65536,
-            ViewHiddenBadges: 131072,
-            ServerConfigs: 262144,
-            Broadcasting: 524288,
-            PlayerSensitiveDataAccess: 1048576,
-            Noclip: 2097152,
-            AFKImmunity: 4194304,
-            AdminChat: 8388608,
-            ViewHiddenGlobalBadges: 16777216,
-            Announcer: 33554432,
-            Effects: 67108864,
-            FriendlyFireDetectorImmunity: 134217728,
-            FriendlyFireDetectorTempDisable: 268435456,
-            ServerLogLiveFeed: 536870912
+        const dataSets = {
+            permissions: {
+                KickingAndShortTermBanning: 1,
+                BanningUpToDay: 2,
+                LongTermBanning: 4,
+                ForceclassSelf: 8,
+                ForceclassToSpectator: 16,
+                ForceclassWithoutRestrictions: 32,
+                GivingItems: 64,
+                WarheadEvents: 128,
+                RespawnEvents: 256,
+                RoundEvents: 512,
+                SetGroup: 1024,
+                GameplayData: 2048,
+                Overwatch: 4096,
+                FacilityManagement: 8192,
+                PlayersManagement: 16384,
+                PermissionsManagement: 32768,
+                ServerConsoleCommands: 65536,
+                ViewHiddenBadges: 131072,
+                ServerConfigs: 262144,
+                Broadcasting: 524288,
+                PlayerSensitiveDataAccess: 1048576,
+                Noclip: 2097152,
+                AFKImmunity: 4194304,
+                AdminChat: 8388608,
+                ViewHiddenGlobalBadges: 16777216,
+                Announcer: 33554432,
+                Effects: 67108864,
+                FriendlyFireDetectorImmunity: 134217728,
+                FriendlyFireDetectorTempDisable: 268435456,
+                ServerLogLiveFeed: 536870912
+            },
+            serverGroups: {}
         };
+        
+        let value = 1;
+        for (let i = 1; i <= 31; i++) {
+            dataSets.serverGroups[`Server Group ${i}`] = value;
+            value *= 2;
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
             const permissionsContainer = document.getElementById('permissions-container');
@@ -211,34 +320,71 @@
             const copyBtn = document.getElementById('copy-btn');
             const selectAllBtn = document.getElementById('select-all');
             const clearAllBtn = document.getElementById('clear-all');
+            const permissionsTab = document.getElementById('permissions-tab');
+            const groupsTab = document.getElementById('groups-tab');
             
-            for (const [name, value] of Object.entries(permissions)) {
-                const item = document.createElement('div');
-                item.className = 'permission-item';
-                item.dataset.value = value;
+            let currentMode = 'permissions';
+            
+            buildUI(dataSets.permissions);
+            
+            permissionsTab.addEventListener('click', function() {
+                if (currentMode !== 'permissions') {
+                    switchMode('permissions');
+                }
+            });
+        
+            groupsTab.addEventListener('click', function() {
+                if (currentMode !== 'serverGroups') {
+                    switchMode('serverGroups');
+                }
+            });
+            
+            function switchMode(newMode) {
+                const currentValue = parseInt(resultInput.value) || 0;
                 
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = name;
-                checkbox.value = value;
-                checkbox.addEventListener('change', calculateTotalFromCheckboxes);
+                currentMode = newMode;
                 
-                const label = document.createElement('label');
-                label.htmlFor = name;
-                label.textContent = formatPermissionName(name);
+                permissionsTab.classList.toggle('active', currentMode === 'permissions');
+                groupsTab.classList.toggle('active', currentMode === 'serverGroups');
                 
-                const valueSpan = document.createElement('span');
-                valueSpan.className = 'permission-value';
-                valueSpan.textContent = value;
+                permissionsContainer.innerHTML = '';
                 
-                item.appendChild(checkbox);
-                item.appendChild(label);
-                item.appendChild(valueSpan);
-                permissionsContainer.appendChild(item);
+                buildUI(dataSets[currentMode]);
+                updateCheckboxesFromValue(currentValue);
             }
             
-            function formatPermissionName(name) {
-                return name.replace(/([A-Z])/g, ' $1').trim();
+            function buildUI(data) {
+                for (const [name, value] of Object.entries(data)) {
+                    const item = document.createElement('div');
+                    item.className = 'permission-item';
+                    item.dataset.value = value;
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.id = name;
+                    checkbox.value = value;
+                    checkbox.addEventListener('change', calculateTotalFromCheckboxes);
+                    
+                    const label = document.createElement('label');
+                    label.htmlFor = name;
+                    label.textContent = formatName(name);
+                    
+                    const valueSpan = document.createElement('span');
+                    valueSpan.className = 'permission-value';
+                    valueSpan.textContent = value;
+                    
+                    item.appendChild(checkbox);
+                    item.appendChild(label);
+                    item.appendChild(valueSpan);
+                    permissionsContainer.appendChild(item);
+                }
+            }
+            
+            function formatName(name) {
+                if (currentMode === 'permissions') {
+                    return name.replace(/([A-Z])/g, ' $1').trim();
+                }
+                return name;
             }
             
             function calculateTotalFromCheckboxes() {
@@ -251,26 +397,27 @@
                 
                 resultInput.value = total;
                 updateBinaryView(total);
-                highlightActivePermissions();
+                highlightActiveItems();
             }
             
             function updateCheckboxesFromValue(value) {
                 const checkboxes = document.querySelectorAll('input[type="checkbox"]');
                 
                 checkboxes.forEach(checkbox => {
-                    const permValue = parseInt(checkbox.value);
-                    checkbox.checked = (value & permValue) === permValue;
+                    const itemValue = parseInt(checkbox.value);
+                    // Check if this bit is set in the value
+                    checkbox.checked = (value & itemValue) === itemValue;
                 });
                 
                 updateBinaryView(value);
-                highlightActivePermissions();
+                highlightActiveItems();
             }
             
             function updateBinaryView(value) {
                 binaryResultElement.textContent = '0b' + value.toString(2);
             }
             
-            function highlightActivePermissions() {
+            function highlightActiveItems() {
                 const items = document.querySelectorAll('.permission-item');
                 items.forEach(item => {
                     const checkbox = item.querySelector('input[type="checkbox"]');
